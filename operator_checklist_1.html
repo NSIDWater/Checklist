@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operator Checklist</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: #f0f2f5; color: #1a1a1a; font-size: 15px; padding-bottom: 48px;
+  }
+  .header { background: #1e3a5f; color: #fff; padding: 16px 16px 14px; }
+  .header h1 { font-size: 20px; font-weight: 700; letter-spacing: 0.01em; }
+  .header .date { font-size: 13px; opacity: 0.72; margin-top: 3px; }
+  .container { padding: 14px 12px; max-width: 700px; margin: 0 auto; }
+
+  .shift-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+  .shift-tab {
+    flex: 1; padding: 10px 6px; text-align: center; font-size: 13px; font-weight: 600;
+    border: 1.5px solid #c5ccd6; border-radius: 8px; cursor: pointer;
+    background: #fff; color: #555; line-height: 1.3; -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .shift-tab .hours { display: block; font-size: 11px; font-weight: 400; opacity: 0.75; margin-top: 2px; }
+  .shift-tab.active { background: #1e3a5f; color: #fff; border-color: #1e3a5f; }
+
+  .progress-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .prog-card {
+    flex: 1; background: #fff; border: 1px solid #dde1e8;
+    border-radius: 8px; padding: 8px 10px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .prog-card.active { border-color: #1e3a5f; border-width: 2px; }
+  .prog-name  { font-size: 11px; font-weight: 700; color: #555; margin-bottom: 5px; }
+  .prog-bg    { height: 5px; background: #e5e8ed; border-radius: 4px; overflow: hidden; }
+  .prog-fill  { height: 100%; background: #2a9d5c; border-radius: 4px; transition: width 0.25s; }
+  .prog-count { font-size: 11px; color: #666; margin-top: 4px; }
+
+  .checklist-wrap {
+    background: #fff; border: 1px solid #dde1e8;
+    border-radius: 10px; overflow: hidden; margin-bottom: 14px;
+  }
+  .col-header { display: grid; background: #1e3a5f; color: #fff; }
+  .col-header .ch { padding: 11px 10px; font-size: 12px; font-weight: 700; letter-spacing: 0.03em; text-align: center; }
+  .col-header .ch.left { text-align: left; }
+
+  .item-standard { display: grid; border-bottom: 1px solid #eaecf0; align-items: stretch; }
+  .item-standard:last-child { border-bottom: none; }
+  .item-standard.complete { background: #f2fbf5; }
+  .desc-cell {
+    padding: 12px 10px; font-size: 13px; color: #222; line-height: 1.45;
+    display: flex; align-items: flex-start; gap: 7px; border-right: 1px solid #eaecf0;
+  }
+  .item-standard.complete .desc-cell { color: #1a6b35; }
+  .item-num { font-size: 11px; color: #aaa; min-width: 18px; padding-top: 1px; flex-shrink: 0; }
+  .input-cell {
+    padding: 8px 7px; display: flex; align-items: center; justify-content: center;
+    border-right: 1px solid #eaecf0;
+  }
+  .input-cell:last-child { border-right: none; }
+  input.reading {
+    width: 100%; padding: 11px 6px; font-size: 16px; font-weight: 500; text-align: center;
+    border: 1.5px solid #d0d5dd; border-radius: 7px; background: #fafbfc; color: #1a1a1a;
+    -webkit-appearance: none; appearance: none; min-height: 48px;
+  }
+  input.reading:focus { outline: none; border-color: #1e3a5f; background: #fff; }
+  .item-standard.complete input.reading { border-color: #7dcf96; background: #eaf7ef; color: #1a6b35; }
+
+  .item-multi { border-bottom: 1px solid #eaecf0; }
+  .item-multi:last-child { border-bottom: none; }
+  .item-multi.complete { background: #f2fbf5; }
+  .multi-desc {
+    padding: 10px 10px 8px; font-size: 13px; color: #222; line-height: 1.45;
+    display: flex; align-items: flex-start; gap: 7px; border-bottom: 1px solid #eef0f3;
+  }
+  .item-multi.complete .multi-desc { color: #1a6b35; }
+  .sub-row { display: grid; border-bottom: 1px solid #eef0f3; align-items: stretch; }
+  .sub-row:last-child { border-bottom: none; }
+  .sub-label-cell {
+    padding: 8px 10px 8px 34px; font-size: 12px; font-weight: 600; color: #555;
+    display: flex; align-items: center; background: #f7f8fa; border-right: 1px solid #eaecf0;
+  }
+  .item-multi.complete .sub-label-cell { background: #eaf7ef; color: #1a6b35; }
+
+  .btn-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; flex-wrap: wrap; }
+  .btn {
+    padding: 12px 22px; font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer;
+    border: 1.5px solid #c5ccd6; background: #fff; color: #555; -webkit-tap-highlight-color: transparent;
+  }
+  .btn.primary { background: #1e3a5f; color: #fff; border-color: #1e3a5f; }
+  .btn.success { background: #2a9d5c; color: #fff; border-color: #2a9d5c; }
+  .btn.danger  { color: #c0392b; border-color: #e5b4b4; }
+  .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  #toast {
+    display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #1e3a5f; color: #fff; padding: 11px 22px; border-radius: 8px;
+    font-size: 14px; font-weight: 600; z-index: 999; white-space: nowrap;
+  }
+  #toast.show { display: block; }
+  #toast.error { background: #c0392b; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Operator Checklist</h1>
+  <div class="date" id="headerDate"></div>
+</div>
+
+<div class="container">
+  <div class="shift-tabs"    id="shiftTabs"></div>
+  <div class="progress-row"  id="progressRow"></div>
+  <div class="checklist-wrap" id="checklistWrap"></div>
+  <div class="btn-row">
+    <button class="btn danger"  onclick="clearShift()">Clear Shift</button>
+    <button class="btn primary" id="submitBtn" onclick="submitToSheets()">Submit to Sheets</button>
+    <button class="btn success" id="saveBtn"   onclick="saveLocal()">Save</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE ──────────────────────────
+const SHEETS_URL = "PASTE_YOUR_WEB_APP_URL_HERE";
+// ────────────────────────────────────────────────────────────────────────────
+
+const ITEMS = [
+  { num:1,  type:"standard", desc:"High Service PSI (Electrical Room)" },
+  { num:2,  type:"standard", desc:"High Service Generator Temp" },
+  { num:3,  type:"standard", desc:"High Service Pump #10 PSI" },
+  { num:4,  type:"standard", desc:"Ground Storage Tank PSI" },
+  { num:5,  type:"standard", desc:"Odor Scrubber #2 Pump PSI" },
+  { num:6,  type:"multi",    desc:"Transfer Pump PSI", subLabels:["Pump 1","Pump 2","Pump 3"] },
+  { num:7,  type:"standard", desc:"Active Chlorine Tank Level (ft)" },
+  { num:8,  type:"standard", desc:"Post Treatment Electrical Room Temp" },
+  { num:9,  type:"standard", desc:"CO\u2082 Tank PSI" },
+  { num:10, type:"multi",    desc:"R.O. Membrane Feed VFD (HZ)", subLabels:["Train 1","Train 2","Train 3","Train 4"] },
+  { num:11, type:"standard", desc:"Concentrate Discharge PSI" },
+  { num:12, type:"standard", desc:"R.O. Bldg #1 AC Temp" },
+  { num:13, type:"standard", desc:"RO Generator Fuel (Gal)" },
+  { num:14, type:"standard", desc:"Sand Strainer Differential Pressure" }
+];
+
+const SHIFTS = [
+  { label:"Shift A", hours:"10pm\u20138am", times:["0100","0500"] },
+  { label:"Shift B", hours:"6am\u20134pm",  times:["0900","1300"] },
+  { label:"Shift C", hours:"2pm\u201312am", times:["1700","2100"] }
+];
+
+const today = new Date().toISOString().slice(0,10);
+let cur = 0;
+let vals = {};
+
+function skStd(s,i,t)     { return "op_"+today+"_s"+s+"_i"+i+"_t"+t; }
+function skSub(s,i,t,sub) { return "op_"+today+"_s"+s+"_i"+i+"_t"+t+"_sub"+sub; }
+
+function load() {
+  for (let s=0; s<3; s++) {
+    vals[s] = {};
+    ITEMS.forEach((item,i) => {
+      if (item.type==="standard") {
+        vals[s][i] = { t0: localStorage.getItem(skStd(s,i,0))||"", t1: localStorage.getItem(skStd(s,i,1))||"" };
+      } else {
+        vals[s][i] = { t0:{}, t1:{} };
+        item.subLabels.forEach((_,sub) => {
+          vals[s][i].t0[sub] = localStorage.getItem(skSub(s,i,0,sub))||"";
+          vals[s][i].t1[sub] = localStorage.getItem(skSub(s,i,1,sub))||"";
+        });
+      }
+    });
+  }
+}
+
+function saveLocal() {
+  for (let s=0; s<3; s++) {
+    ITEMS.forEach((item,i) => {
+      if (item.type==="standard") {
+        localStorage.setItem(skStd(s,i,0), vals[s][i].t0);
+        localStorage.setItem(skStd(s,i,1), vals[s][i].t1);
+      } else {
+        item.subLabels.forEach((_,sub) => {
+          localStorage.setItem(skSub(s,i,0,sub), vals[s][i].t0[sub]);
+          localStorage.setItem(skSub(s,i,1,sub), vals[s][i].t1[sub]);
+        });
+      }
+    });
+  }
+  showToast("Saved locally \u2713", false);
+}
+
+function clearShift() {
+  if (!confirm("Clear all readings for "+SHIFTS[cur].label+"?")) return;
+  ITEMS.forEach((item,i) => {
+    if (item.type==="standard") {
+      vals[cur][i] = {t0:"",t1:""};
+      localStorage.removeItem(skStd(cur,i,0));
+      localStorage.removeItem(skStd(cur,i,1));
+    } else {
+      item.subLabels.forEach((_,sub) => {
+        vals[cur][i].t0[sub]=""; vals[cur][i].t1[sub]="";
+        localStorage.removeItem(skSub(cur,i,0,sub));
+        localStorage.removeItem(skSub(cur,i,1,sub));
+      });
+    }
+  });
+  renderChecklist(); renderProgress();
+}
+
+// Build a structured payload for the Apps Script
+function buildPayload(s) {
+  const sh = SHIFTS[s];
+  const submittedAt = new Date().toLocaleString("en-US", {
+    month:"2-digit", day:"2-digit", year:"numeric",
+    hour:"2-digit", minute:"2-digit", hour12:true
+  });
+
+  const rows = [];
+  ITEMS.forEach((item,i) => {
+    if (item.type==="standard") {
+      rows.push({
+        date:        today,
+        submitted:   submittedAt,
+        shift:       sh.label + " (" + sh.hours + ")",
+        item_num:    item.num,
+        description: item.desc,
+        sub_label:   "",
+        time_1:      sh.times[0],
+        reading_1:   vals[s][i].t0 || "—",
+        time_2:      sh.times[1],
+        reading_2:   vals[s][i].t1 || "—"
+      });
+    } else {
+      item.subLabels.forEach((label,sub) => {
+        rows.push({
+          date:        today,
+          submitted:   submittedAt,
+          shift:       sh.label + " (" + sh.hours + ")",
+          item_num:    item.num,
+          description: item.desc,
+          sub_label:   label,
+          time_1:      sh.times[0],
+          reading_1:   vals[s][i].t0[sub] || "—",
+          time_2:      sh.times[1],
+          reading_2:   vals[s][i].t1[sub] || "—"
+        });
+      });
+    }
+  });
+  return rows;
+}
+
+async function submitToSheets() {
+  if (SHEETS_URL === "PASTE_YOUR_WEB_APP_URL_HERE") {
+    showToast("Add your Sheets URL first", true);
+    return;
+  }
+  const btn = document.getElementById("submitBtn");
+  btn.textContent = "Submitting\u2026";
+  btn.disabled = true;
+
+  const payload = buildPayload(cur);
+
+  try {
+    await fetch(SHEETS_URL, {
+      method: "POST",
+      mode:   "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rows: payload })
+    });
+    showToast("Submitted to Sheets \u2713", false);
+    saveLocal();
+  } catch(err) {
+    showToast("Submit failed \u2014 check URL", true);
+  } finally {
+    btn.textContent = "Submit to Sheets";
+    btn.disabled = false;
+  }
+}
+
+function showToast(msg, isError) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "show" + (isError ? " error" : "");
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>{ t.className=""; }, 2800);
+}
+
+function isComplete(s,i) {
+  const item = ITEMS[i];
+  if (item.type==="standard") return vals[s][i].t0.trim()!=="" && vals[s][i].t1.trim()!=="";
+  const t0any = item.subLabels.some((_,sub)=>vals[s][i].t0[sub].trim()!=="");
+  const t1any = item.subLabels.some((_,sub)=>vals[s][i].t1[sub].trim()!=="");
+  return t0any && t1any;
+}
+function countComplete(s) { return ITEMS.filter((_,i)=>isComplete(s,i)).length; }
+
+function setShift(n) {
+  cur = n;
+  document.querySelectorAll(".shift-tab").forEach((t,i)=>t.classList.toggle("active",i===n));
+  document.querySelectorAll(".prog-card").forEach((c,i)=>c.classList.toggle("active",i===n));
+  renderChecklist();
+}
+
+function renderDate() {
+  document.getElementById("headerDate").textContent = new Date().toLocaleDateString("en-US",{
+    weekday:"long", year:"numeric", month:"long", day:"numeric"
+  });
+}
+
+function renderShiftTabs() {
+  const row = document.getElementById("shiftTabs");
+  row.innerHTML = "";
+  SHIFTS.forEach((s,i) => {
+    const d = document.createElement("div");
+    d.className = "shift-tab"+(i===cur?" active":"");
+    d.innerHTML = s.label+'<span class="hours">'+s.hours+"</span>";
+    d.onclick = ()=>setShift(i);
+    row.appendChild(d);
+  });
+}
+
+function renderProgress() {
+  const strip = document.getElementById("progressRow");
+  strip.innerHTML = "";
+  SHIFTS.forEach((s,si) => {
+    const done = countComplete(si);
+    const pct  = Math.round(done/ITEMS.length*100);
+    const c = document.createElement("div");
+    c.className = "prog-card"+(si===cur?" active":"");
+    c.innerHTML = '<div class="prog-name">'+s.label+'</div>'
+      +'<div class="prog-bg"><div class="prog-fill" style="width:'+pct+'%"></div></div>'
+      +'<div class="prog-count">'+done+"/"+ITEMS.length+" complete</div>";
+    c.onclick = ()=>setShift(si);
+    strip.appendChild(c);
+  });
+}
+
+function renderChecklist() {
+  const wrap = document.getElementById("checklistWrap");
+  const sh   = SHIFTS[cur];
+  const COL  = "80px";
+  const GRID = "1fr "+COL+" "+COL;
+
+  let html = '<div class="col-header" style="grid-template-columns:'+GRID+';">'
+    +'<div class="ch left">Description</div>'
+    +'<div class="ch">'+sh.times[0]+'</div>'
+    +'<div class="ch">'+sh.times[1]+'</div>'
+    +'</div>';
+
+  ITEMS.forEach((item,i) => {
+    const comp = isComplete(cur,i);
+    if (item.type==="standard") {
+      const v0 = vals[cur][i].t0.replace(/"/g,"&quot;");
+      const v1 = vals[cur][i].t1.replace(/"/g,"&quot;");
+      html += '<div class="item-standard'+(comp?" complete":"")
+        +'" id="row-'+i+'" style="grid-template-columns:'+GRID+';">'
+        +'<div class="desc-cell"><span class="item-num">'+item.num+'</span>'+item.desc+'</div>'
+        +'<div class="input-cell"><input class="reading" type="text" inputmode="decimal" placeholder="—" value="'+v0+'" data-item="'+i+'" data-t="0"></div>'
+        +'<div class="input-cell"><input class="reading" type="text" inputmode="decimal" placeholder="—" value="'+v1+'" data-item="'+i+'" data-t="1"></div>'
+        +'</div>';
+    } else {
+      html += '<div class="item-multi'+(comp?" complete":"")
+        +'" id="row-'+i+'">'
+        +'<div class="multi-desc"><span class="item-num">'+item.num+'</span>'+item.desc+'</div>'
+        +'<div class="sub-rows">';
+      item.subLabels.forEach((label,sub) => {
+        const v0 = vals[cur][i].t0[sub].replace(/"/g,"&quot;");
+        const v1 = vals[cur][i].t1[sub].replace(/"/g,"&quot;");
+        html += '<div class="sub-row" style="grid-template-columns:'+GRID+';">'
+          +'<div class="sub-label-cell">'+label+'</div>'
+          +'<div class="input-cell"><input class="reading" type="text" inputmode="decimal" placeholder="—" value="'+v0+'" data-item="'+i+'" data-sub="'+sub+'" data-t="0"></div>'
+          +'<div class="input-cell"><input class="reading" type="text" inputmode="decimal" placeholder="—" value="'+v1+'" data-item="'+i+'" data-sub="'+sub+'" data-t="1"></div>'
+          +'</div>';
+      });
+      html += '</div></div>';
+    }
+  });
+
+  wrap.innerHTML = html;
+
+  wrap.querySelectorAll("input.reading").forEach(inp => {
+    inp.addEventListener("input", e => {
+      const it  = +e.target.dataset.item;
+      const t   = +e.target.dataset.t;
+      const sub = e.target.dataset.sub;
+      if (sub !== undefined) {
+        vals[cur][it]["t"+t][+sub] = e.target.value;
+      } else {
+        vals[cur][it]["t"+t] = e.target.value;
+      }
+      document.getElementById("row-"+it).classList.toggle("complete", isComplete(cur,it));
+      renderProgress();
+    });
+  });
+}
+
+load();
+renderDate();
+renderShiftTabs();
+renderProgress();
+renderChecklist();
+</script>
+</body>
+</html>
